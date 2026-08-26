@@ -8,7 +8,7 @@
     body {
       margin: 0;
       font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #0d1b2a, #1b263b); /* navy gradient */
+      background: linear-gradient(135deg, #0d1b2a, #1b263b);
       color: #e0e1dd;
       display: flex;
       justify-content: center;
@@ -16,7 +16,7 @@
       height: 100vh;
     }
     .login-box {
-      background: #f0f0f0; /* kelabu lembut */
+      background: #f0f0f0;
       color: #333;
       padding: 40px;
       border-radius: 12px;
@@ -74,6 +74,14 @@
   </div>
 
   <script>
+    // Auto masuk kalau session wujud
+    window.onload = () => {
+      let session = localStorage.getItem("MBT_session");
+      if(session){
+        window.location.href = "dashboard.html";
+      }
+    };
+
     function login(){
       try {
         let userData = localStorage.getItem("MBT_user");
@@ -86,11 +94,12 @@
         let inputUser = document.getElementById("username").value.trim();
         let inputPass = document.getElementById("password").value.trim();
 
-        if(user && user.username === inputUser && user.password === inputPass){
+        if(user.username === inputUser && user.password === inputPass){
+          localStorage.setItem("MBT_session", user.username); // simpan session
           alert("Welcome back, " + user.username + "!");
           window.location.href = "dashboard.html";
         } else {
-          alert("Invalid login. Please register first.");
+          alert("Invalid login. Please try again.");
         }
       } catch(e){
         console.error("Login error:", e);

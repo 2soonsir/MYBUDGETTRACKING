@@ -1,26 +1,48 @@
-<script>
-window.onload = () => {
-  // kalau user dah ada dalam localStorage, auto masuk dashboard
-  let user = JSON.parse(localStorage.getItem("MBT_user"));
-  if(user && user.username && user.password){
-    window.location.href = "dashboard.html";
-  }
-};
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - MyBudgetApp</title>
+</head>
+<body>
+  <h2>Login</h2>
+  <form onsubmit="login(); return false;">
+    <label>Username:</label>
+    <input type="text" id="username" required><br><br>
+    <label>Password:</label>
+    <input type="password" id="password" required><br><br>
+    <button type="submit">Login</button>
+    <button type="button" onclick="goRegister()">Register</button>
+  </form>
 
-function login(){
-  let user = JSON.parse(localStorage.getItem("MBT_user"));
-  let inputUser = document.getElementById("username").value;
-  let inputPass = document.getElementById("password").value;
+  <script>
+    function login(){
+      try {
+        let userData = localStorage.getItem("MBT_user");
+        if(!userData){
+          alert("No user found. Please register first.");
+          return;
+        }
 
-  if(user && user.username === inputUser && user.password === inputPass){
-    alert("Welcome back, " + user.username + "!");
-    window.location.href = "dashboard.html"; // masuk ke app utama
-  } else {
-    alert("Invalid login. Please register first.");
-  }
-}
+        let user = JSON.parse(userData);
+        let inputUser = document.getElementById("username").value.trim();
+        let inputPass = document.getElementById("password").value.trim();
 
-function goRegister(){
-  window.location.href = "register.html";
-}
-</script>
+        if(user && user.username === inputUser && user.password === inputPass){
+          alert("Welcome back, " + user.username + "!");
+          window.location.href = "dashboard.html";
+        } else {
+          alert("Invalid login. Please register first.");
+        }
+      } catch(e){
+        console.error("Login error:", e);
+        alert("Error reading user data. Please register again.");
+      }
+    }
+
+    function goRegister(){
+      window.location.href = "register.html";
+    }
+  </script>
+</body>
+</html>

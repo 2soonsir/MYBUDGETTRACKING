@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<title>MyBudgetTracking - Target Simpanan</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; font-family:"Poppins",sans-serif; background:linear-gradient(135deg,#a8dadc,#457b9d); color:#333; min-height:100vh; }
+  .header { background:#1b263b; color:#fff; padding:15px 25px; display:flex; justify-content:space-between; align-items:center; }
+  .header h1 { margin:0; font-size:20px; font-weight:600; }
+  .profile-header { display:flex; align-items:center; gap:12px; }
+  .avatar { width:40px; height:40px; border-radius:50%; background:#ccc; cursor:pointer; object-fit:cover; }
+  .welcome { font-size:14px; font-weight:500; }
+  .container { max-width:600px; margin:40px auto; background:#f0f0f0; padding:30px; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15); text-align:center; }
+  .back-btn { margin-bottom:20px; padding:10px 20px; background:#1b263b; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; transition:0.3s; }
+  .back-btn:hover { background:#415a77; }
+  .summary { font-size:16px; font-weight:600; color:#1b263b; margin-bottom:20px; }
+  .progress-container { margin-top:20px; background:#ddd; border-radius:10px; overflow:hidden; height:25px; }
+  .progress-bar { height:100%; background:#2a9d8f; width:0%; text-align:center; color:#fff; font-size:14px; font-weight:600; transition:width 0.5s; }
+  input { padding:10px; margin:8px 0; width:60%; border-radius:8px; border:1px solid #ccc; background:#e9e9e9; font-size:14px; }
+  button { padding:10px 20px; margin:5px; background:#1b263b; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; transition:0.3s; }
+  button:hover { background:#415a77; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>MyBudgetTracking</h1>
+    <div class="profile-header">
+      <div class="welcome">Welcome, <span id="username"></span></div>
+      <img id="avatarSmall" class="avatar" src="" alt="avatar" onclick="editProfile()">
+    </div>
+  </div>
+
+  <div class="container">
+    <button class="back-btn" onclick="goDashboard()">⬅ Kembali ke Dashboard</button>
+
+    <div class="summary">
+      Target Simpanan: RM <span id="target">0</span><br>
+      Jumlah Tabung / Simpanan: RM <span id="summaryTotal">0</span>
+    </div>
+
+    <input type="number" id="targetInput" placeholder="Masukkan target (RM)">
+    <button onclick="setTarget()">Set Target Simpanan</button>
+
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar">0%</div>
+    </div>
+
+    <h3>Rekod Tabung</h3>
+    <input type="number" id="amount" placeholder="Jumlah (RM)">
+    <div>
+      <button onclick="addSaving()">Masuk Duit</button>
+      <button onclick="removeSaving()">Keluarkan Duit</button>
+      <button onclick="resetSaving()">Reset Jumlah Tabung</button>
+    </div>
+  </div>
+
+<script>
+  let target = 0;
+  let total = 0;
+
+  window.onload = () => {
+    let user = JSON.parse(localStorage.getItem("MBT_user"));
+    if(user){
+      if(user.username){
+        document.getElementById("username").textContent = user.username;
+      }
+      if(user.avatar){
+        document.getElementById("avatarSmall").src = user.avatar;
+      }
+    }
+
+    const savedTarget = localStorage.getItem("target");
+    if(savedTarget){
+      target = parseFloat(savedTarget);
+      document.getElementById("target").textContent = target.toFixed(2);
+    }
+    const savedTotal = localStorage.getItem("savingTotal");
+    if(savedTotal){
+      total = parseFloat(savedTotal);
+      document.getElementById("summaryTotal").textContent = total.toFixed(2);
+    }
+    updateProgress();
+  };
+
+  function goDashboard(){ window.location.href = "dashboard.html"; }
+  function editProfile(){ window.location.href = "profile.html"; }
+
+  function setTarget(){
+    const input = parseFloat(document.getElementById("targetInput").value);
+    if(input){
+      target = input;
+      localStorage.setItem("target", target);
+      document.getElementById("target").textContent = target.toFixed(2);
+      updateProgress();
+      alert("Target simpanan telah dikemaskini.");
+      document.getElementById("targetInput").value = "";
+    }
+  }
+
+  function addSaving(){
+    const amount = parseFloat(document.getElementById("amount").value);
+    if(amount){
+      total += amount;
+      localStorage.setItem("savingTotal", total);
+      document.getElementById("summaryTotal").textContent = total.toFixed(2);
+      updateProgress();
+
+      let logs = JSON.parse(localStorage.getItem("tabungLogs")) || [];
+      logs.push({
+        date: new Date().toLocaleString(),
+        type: "Masuk",
+        amount: amount,
+        note: "Tambah simpanan"
+      });
+      localStorage.setItem("tabungLogs", JSON.stringify(logs));
+
+      alert("Masuk duit telah direkodkan.");
+      document.getElementById("amount").value = "";
+    }
+  }
+
+  function removeSaving(){
+    const amount = parseFloat(document.getElementById("amount").value);
+    if(amount){
+      total -= amount;
+      localStorage.setItem("savingTotal", total);
+      document.getElementById("summaryTotal").textContent = total.toFixed(2);
+      updateProgress();
+
+      let logs = JSON.parse(localStorage.getItem("tabungLogs")) || [];
+      logs.push({
+        date: new Date().toLocaleString(),
+        type: "Keluar",
+        amount: amount,
+        note: "Keluarkan simpanan"
+      });
+      localStorage.setItem("tabungLogs", JSON.stringify(logs));
+
+      alert("Keluarkan duit telah direkodkan.");
+      document.getElementById("amount").value = "";
+    }
+  }
+
+  function resetSaving(){
+    total = 0;
+    localStorage.setItem("savingTotal", total);
+    document.getElementById("summaryTotal").textContent = total.toFixed(2);
+    updateProgress();
+    alert("Jumlah tabung telah direset.");
+  }
+
+  function updateProgress(){
+    const progressBar = document.getElementById("progressBar");
+    if(target > 0){
+      let percent = Math.min((total / target) * 100, 100);
+      progressBar.style.width = percent + "%";
+      progressBar.textContent = Math.floor(percent) + "%";
+    } else {
+      progressBar.style.width = "0%";
+      progressBar.textContent = "0%";
+    }
+  }
+</script>
+</body>
+</html>

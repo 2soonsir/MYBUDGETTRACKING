@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<title>MyBudgetTracking - Log Tabung</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; font-family:"Poppins",sans-serif; background:linear-gradient(135deg,#a8dadc,#457b9d); color:#333; min-height:100vh; }
+  .header { background:#1b263b; color:#fff; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; }
+  .header h1 { margin:0; font-size:20px; font-weight:600; }
+  .profile-header { display:flex; align-items:center; gap:12px; }
+  .avatar { width:40px; height:40px; border-radius:50%; background:#ccc; cursor:pointer; }
+  .welcome { font-size:14px; font-weight:500; }
+  .container { max-width:800px; margin:30px auto; background:#f0f0f0; padding:26px; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15); }
+  h2 { margin-top:0; color:#1b263b; text-align:center; }
+  table { width:100%; border-collapse:collapse; margin-top:20px; }
+  th, td { padding:10px; border-bottom:1px solid #ccc; text-align:left; }
+  th { background:#1b263b; color:#fff; }
+  tr:hover { background:#e9e9e9; }
+  .in { color:green; font-weight:600; }
+  .out { color:red; font-weight:600; }
+  .actions { text-align:center; margin-top:20px; }
+  button { padding:10px 18px; margin:5px; background:#1b263b; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; transition:0.18s; }
+  button:hover { background:#415a77; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>MyBudgetTracking</h1>
+    <div class="profile-header">
+      <div class="welcome">Welcome, <span id="username">Guest</span></div>
+      <div class="avatar" onclick="editProfile()"></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>Log Tabung Simpanan</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Tarikh</th>
+          <th>Jenis</th>
+          <th>Jumlah (RM)</th>
+          <th>Catatan</th>
+        </tr>
+      </thead>
+      <tbody id="logTable"></tbody>
+    </table>
+    <div class="actions">
+      <button onclick="goDashboard()">⬅ Kembali ke Menu</button>
+      <button onclick="goBelanja()">➡ Pergi ke Log Belanja</button>
+      <button onclick="resetLog()">🔄 Reset Log Tabung</button>
+    </div>
+  </div>
+
+<script>
+  let logs = [];
+
+  window.onload = () => {
+    const user = JSON.parse(localStorage.getItem("MBT_user"));
+    if(user && user.username){ document.getElementById("username").textContent = user.username; }
+
+    const savedLogs = localStorage.getItem("tabungLogs");
+    if(savedLogs){ logs = JSON.parse(savedLogs); }
+    updateUI();
+  };
+
+  function editProfile(){  window.location.href = "profile.html"; }
+  function goDashboard(){ window.location.href = "dashboard.html"; }
+  function goBelanja(){ window.location.href = "log1.html"; }
+
+  function resetLog(){
+    if(!confirm("Betul nak reset semua log tabung?")) return;
+    logs = [];
+    localStorage.setItem("tabungLogs", JSON.stringify(logs));
+    updateUI();
+    alert("Log tabung telah direset.");
+  }
+
+  function updateUI(){
+    const table = document.getElementById("logTable");
+    table.innerHTML = "";
+    logs.forEach(log => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${log.date}</td>
+        <td>${log.type}</td>
+        <td class="${log.type==='Masuk'?'in':'out'}">RM ${Number(log.amount).toFixed(2)}</td>
+        <td>${log.note || "-"}</td>
+      `;
+      table.appendChild(tr);
+    });
+  }
+</script>
+</body>
+</html>

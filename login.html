@@ -1,0 +1,26 @@
+<script>
+window.onload = () => {
+  // kalau user dah ada dalam localStorage, auto masuk dashboard
+  let user = JSON.parse(localStorage.getItem("MBT_user"));
+  if(user && user.username && user.password){
+    window.location.href = "dashboard.html";
+  }
+};
+
+function login(){
+  let user = JSON.parse(localStorage.getItem("MBT_user"));
+  let inputUser = document.getElementById("username").value;
+  let inputPass = document.getElementById("password").value;
+
+  if(user && user.username === inputUser && user.password === inputPass){
+    alert("Welcome back, " + user.username + "!");
+    window.location.href = "dashboard.html"; // masuk ke app utama
+  } else {
+    alert("Invalid login. Please register first.");
+  }
+}
+
+function goRegister(){
+  window.location.href = "register.html";
+}
+</script>

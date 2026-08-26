@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<title>MyBudgetTracking - Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(135deg, #a8dadc, #457b9d);
+    color: #333;
+    min-height: 100vh;
+  }
+  .header {
+    background: #1b263b;
+    color: #fff;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+  }
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ccc;
+    cursor: pointer;
+    object-fit: cover;
+  }
+  .welcome {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .dashboard {
+    max-width: 600px;
+    margin: 40px auto;
+    background: #f0f0f0;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    text-align: center;
+  }
+  .summary {
+    margin-bottom: 25px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1b263b;
+  }
+  .nav-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+  .nav-buttons button {
+    flex: 1 1 45%;
+    padding: 12px;
+    background: #1b263b;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+  }
+  .nav-buttons button:hover {
+    background: #415a77;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>MyBudgetTracking</h1>
+    <div class="profile-header">
+      <div class="welcome">Welcome, <span id="username">User</span></div>
+      <img id="avatarSmall" class="avatar" src="" alt="avatar" onclick="editProfile()">
+    </div>
+  </div>
+
+  <div class="dashboard">
+    <div class="summary">
+      Target Simpanan: RM <span id="targetInfo">0</span><br>
+      Jumlah Tabung / Simpanan: RM <span id="summaryTotal">0</span>
+    </div>
+
+    <div class="nav-buttons">
+      <button onclick="goPage('saving.html')">🎯 Simpanan</button>
+      <button onclick="goPage('spending.html')">💸 Perbelanjaan</button>
+      <button onclick="goPage('wishlist1.html')">🌞 Keinginan</button>
+      <button onclick="goPage('log.html')">📜 Log Duit</button>
+    </div>
+  </div>
+
+<script>
+  let target = 0;
+  let total = 0;
+
+  window.onload = () => {
+    let user = JSON.parse(localStorage.getItem("MBT_user"));
+    if(user){
+      if(user.username){
+        document.getElementById("username").textContent = user.username;
+      }
+      if(user.avatar){
+        document.getElementById("avatarSmall").src = user.avatar;
+      }
+    }
+
+    const savedTotal = localStorage.getItem("savingTotal");
+    if(savedTotal){
+      total = parseFloat(savedTotal);
+      document.getElementById("summaryTotal").textContent = total.toFixed(2);
+    }
+
+    const savedTarget = localStorage.getItem("target");
+    if(savedTarget){
+      target = parseFloat(savedTarget);
+      document.getElementById("targetInfo").textContent = target.toFixed(2);
+    }
+  };
+
+  function goPage(page){
+    window.location.href = page;
+  }
+  function editProfile(){
+    window.location.href = "profile.html";
+  }
+</script>
+</body>
+</html>

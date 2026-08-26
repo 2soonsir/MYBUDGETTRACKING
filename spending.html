@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<title>MyBudgetTracking - Perbelanjaan Harian</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(135deg, #a8dadc, #457b9d);
+    color: #333;
+    min-height: 100vh;
+  }
+  .header {
+    background: #1b263b;
+    color: #fff;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+  .profile-header { display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background:#ccc; cursor:pointer; object-fit:cover; }
+  .welcome { font-size: 14px; font-weight: 500; }
+  .container {
+    max-width: 600px; margin: 40px auto; background: #f0f0f0;
+    padding: 30px; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    text-align: center;
+  }
+  .back-btn {
+    margin-bottom: 20px; padding: 10px 20px; background: #1b263b; color: #fff;
+    border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s;
+  }
+  .back-btn:hover { background: #415a77; }
+  .summary { font-size: 16px; font-weight: 600; color: #1b263b; margin-bottom: 20px; }
+  input { padding: 10px; margin: 8px; width: 60%; border-radius: 8px; border: 1px solid #ccc; background: #e9e9e9; }
+  button {
+    padding: 10px 20px; margin: 5px; background: #1b263b; color: #fff;
+    border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s;
+  }
+  button:hover { background: #415a77; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>MyBudgetTracking</h1>
+    <div class="profile-header">
+      <div class="welcome">Welcome, <span id="username"></span></div>
+      <img id="avatarSmall" class="avatar" src="" alt="avatar" onclick="editProfile()">
+    </div>
+  </div>
+
+  <div class="container">
+    <button class="back-btn" onclick="goDashboard()">⬅ Kembali ke Dashboard</button>
+
+    <h2>Perbelanjaan Harian</h2>
+    <p>Tarikh: <span id="today"></span></p>
+
+    <div class="summary">
+      Elaun Harian: RM <span id="allowance">0</span><br>
+      Duit Masuk: RM <span id="incomeTotal">0</span><br>
+      Duit Belanja: RM <span id="expenseTotal">0</span><br>
+      Baki Hari Ini: RM <span id="balance">0</span>
+    </div>
+
+    <input type="number" id="allowanceInput" placeholder="Elaun harian (RM)">
+    <button onclick="setAllowance()">Set Elaun</button>
+
+    <input type="text" id="desc" placeholder="Deskripsi (cth: Makan)">
+    <input type="number" id="amount" placeholder="Jumlah (RM)">
+    <div>
+      <button onclick="addIncome()">Masuk Duit</button>
+      <button onclick="addExpense()">Belanja Duit</button>
+      <button onclick="resetSpending()">Reset Spending</button>
+    </div>
+  </div>
+
+<script>
+  let todayKey = new Date().toISOString().split('T')[0];
+  let data = { allowance: 0, income: [], expense: [] };
+
+  window.onload = () => {
+    document.getElementById("today").textContent = todayKey;
+
+    let user = JSON.parse(localStorage.getItem("MBT_user"));
+    if(user){
+      if(user.username){
+        document.getElementById("username").textContent = user.username;
+      } else {
+        document.getElementById("username").textContent = "Guest";
+      }
+      if(user.avatar){
+        document.getElementById("avatarSmall").src = user.avatar;
+      }
+    }
+
+    const saved = localStorage.getItem("spending_" + todayKey);
+    if(saved){ data = JSON.parse(saved); }
+    updateUI();
+  };
+
+  function goDashboard(){ window.location.href = "dashboard.html"; }
+  function editProfile(){ window.location.href = "profile.html"; }
+
+  function setAllowance(){
+    const val = parseFloat(document.getElementById("allowanceInput").value);
+    if(val){
+      data.allowance = val;
+      saveData(); updateUI();
+      alert("Elaun harian telah ditetapkan.");
+      document.getElementById("allowanceInput").value = "";
+    }
+  }
+
+  function resetSpending(){
+    data = { allowance: 0, income: [], expense: [] };
+    saveData(); updateUI();
+    alert("Elaun & rekod spending telah direset.");
+  }
+
+  function addIncome(){
+    const desc = document.getElementById("desc").value;
+    const amt = parseFloat(document.getElementById("amount").value);
+    if(desc && amt){
+      data.income.push({desc, amt});
+      saveData(); updateUI();
+
+      let logs = JSON.parse(localStorage.getItem("belanjaLogs")) || [];
+      logs.push({
+        date: new Date().toLocaleString(),
+        type: "Masuk",
+        amount: amt,
+        note: desc
+      });
+      localStorage.setItem("belanjaLogs", JSON.stringify(logs));
+
+      alert("Duit masuk direkodkan.");
+      clearInputs();
+    }
+  }
+
+  function addExpense(){
+    const desc = document.getElementById("desc").value;
+    const amt = parseFloat(document.getElementById("amount").value);
+    if(desc && amt){
+      data.expense.push({desc, amt});
+      saveData(); updateUI();
+
+      let logs = JSON.parse(localStorage.getItem("belanjaLogs")) || [];
+      logs.push({
+        date: new Date().toLocaleString(),
+        type: "Keluar",
+        amount: amt,
+        note: desc
+      });
+      localStorage.setItem("belanjaLogs", JSON.stringify(logs));
+
+      alert("Duit belanja direkodkan.");
+      clearInputs();
+    }
+  }
+
+  function clearInputs(){
+    document.getElementById("desc").value = "";
+    document.getElementById("amount").value = "";
+  }
+
+  function saveData(){
+    localStorage.setItem("spending_" + todayKey, JSON.stringify(data));
+  }
+
+  function updateUI(){
+    let incomeTotal = data.income.reduce((sum, i) => sum + i.amt, 0);
+    let expenseTotal = data.expense.reduce((sum, e) => sum + e.amt, 0);
+    let balance = data.allowance + incomeTotal - expenseTotal;
+
+    document.getElementById("allowance").textContent = data.allowance.toFixed(2);
+    document.getElementById("incomeTotal").textContent = incomeTotal.toFixed(2);
+    document.getElementById("expenseTotal").textContent = expenseTotal.toFixed(2);
+    document.getElementById("balance").textContent = balance.toFixed(2);
+  }
+</script>
+</body>
+</html>

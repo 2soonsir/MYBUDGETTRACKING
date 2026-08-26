@@ -101,9 +101,9 @@
   }
 
   function logout(){
-    localStorage.removeItem("MBT_user");
+    localStorage.removeItem("MBT_session"); // clear session sahaja
     alert("Anda telah logout.");
-    window.location.href = "login.html"; // redirect ke login/menu
+    window.location.href = "login.html"; // redirect ke login
   }
 
   function goDashboard(){ window.location.href = "dashboard.html"; }

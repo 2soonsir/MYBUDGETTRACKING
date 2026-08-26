@@ -2,7 +2,7 @@
 <html lang="ms">
 <head>
   <meta charset="UTF-8">
-  <title>MyBudgetTracking - Login</title>
+  <title>MyBudgetTracking - Register</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
@@ -15,7 +15,7 @@
       align-items: center;
       height: 100vh;
     }
-    .login-box {
+    .register-box {
       background: #f0f0f0;
       color: #333;
       padding: 40px;
@@ -25,7 +25,7 @@
       text-align: center;
     }
     .title {
-      font-size: 28px;
+      font-size: 26px;
       font-weight: 600;
       margin-bottom: 25px;
       color: #1b263b;
@@ -63,52 +63,27 @@
   </style>
 </head>
 <body>
-  <div class="login-box">
-    <div class="title">Login</div>
-    <form onsubmit="login(); return false;">
-      <input id="username" placeholder="Username" required><br>
-      <input id="password" type="password" placeholder="Password" required><br>
-      <button type="submit">🔑 Login</button>
-      <button type="button" onclick="goRegister()">📝 Register</button>
-    </form>
+  <div class="register-box">
+    <div class="title">Create Account</div>
+    <input id="username" placeholder="Username" required><br>
+    <input id="password" type="password" placeholder="Password" required><br>
+    <button onclick="register()">Register</button>
   </div>
 
   <script>
-    // Auto masuk kalau session wujud
-    window.onload = () => {
-      let session = localStorage.getItem("MBT_session");
-      if(session){
-        window.location.href = "dashboard.html";
+    function register(){
+      let username = document.getElementById("username").value.trim();
+      let password = document.getElementById("password").value.trim();
+
+      if(!username || !password){
+        alert("Please fill in all fields.");
+        return;
       }
-    };
 
-    function login(){
-      try {
-        let userData = localStorage.getItem("MBT_user");
-        if(!userData){
-          alert("No user found. Please register first.");
-          return;
-        }
-
-        let user = JSON.parse(userData);
-        let inputUser = document.getElementById("username").value.trim();
-        let inputPass = document.getElementById("password").value.trim();
-
-        if(user.username === inputUser && user.password === inputPass){
-          localStorage.setItem("MBT_session", user.username); // simpan session
-          alert("Welcome back, " + user.username + "!");
-          window.location.href = "dashboard.html";
-        } else {
-          alert("Invalid login. Please try again.");
-        }
-      } catch(e){
-        console.error("Login error:", e);
-        alert("Error reading user data. Please register again.");
-      }
-    }
-
-    function goRegister(){
-      window.location.href = "register.html";
+      let user = { username, password };
+      localStorage.setItem("MBT_user", JSON.stringify(user));
+      alert("Account created! Please login.");
+      window.location.href = "login.html";
     }
   </script>
 </body>

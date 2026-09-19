@@ -2,26 +2,35 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MyBudgetTracking - Log Pembelanjaan</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <style>
   body { margin:0; font-family:"Poppins",sans-serif; background:linear-gradient(135deg,#a8dadc,#457b9d); color:#333; min-height:100vh; }
-  .header { background:#1b263b; color:#fff; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; }
+  .header { background:#1b263b; color:#fff; padding:12px 20px; display:flex; justify-content:space-between; align-items:center; }
   .header h1 { margin:0; font-size:20px; font-weight:600; }
-  .profile-header { display:flex; align-items:center; gap:12px; }
-  .avatar { width:40px; height:40px; border-radius:50%; background:#ccc; cursor:pointer; }
+  .profile-header { display:flex; align-items:center; gap:10px; }
+  .avatar { width:36px; height:36px; border-radius:50%; background:#ccc; cursor:pointer; }
   .welcome { font-size:14px; font-weight:500; }
-  .container { max-width:800px; margin:30px auto; background:#f0f0f0; padding:26px; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15); }
+  .container { max-width:95%; margin:20px auto; background:#f0f0f0; padding:15px; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15); }
   h2 { margin-top:0; color:#1b263b; text-align:center; }
-  table { width:100%; border-collapse:collapse; margin-top:20px; }
+  .table-wrapper { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; min-width:400px; margin-top:15px; }
   th, td { padding:10px; border-bottom:1px solid #ccc; text-align:left; }
   th { background:#1b263b; color:#fff; }
   tr:hover { background:#e9e9e9; }
   .in { color:green; font-weight:600; }
   .out { color:red; font-weight:600; }
-  .actions { text-align:center; margin-top:20px; }
-  button { padding:10px 18px; margin:5px; background:#1b263b; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; transition:0.18s; }
+  .actions { text-align:center; margin-top:15px; }
+  button { padding:10px; margin:6px; background:#1b263b; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; transition:0.18s; }
   button:hover { background:#415a77; }
+
+  @media (max-width:480px){
+    .header h1 { font-size:18px; }
+    .welcome { font-size:12px; }
+    th, td { font-size:12px; padding:6px; }
+    button { width:100%; margin:6px 0; }
+  }
 </style>
 </head>
 <body>
@@ -35,17 +44,19 @@
 
   <div class="container">
     <h2>Log Pembelanjaan Harian</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Tarikh</th>
-          <th>Jenis</th>
-          <th>Jumlah (RM)</th>
-          <th>Catatan</th>
-        </tr>
-      </thead>
-      <tbody id="logTable"></tbody>
-    </table>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Tarikh</th>
+            <th>Jenis</th>
+            <th>Jumlah (RM)</th>
+            <th>Catatan</th>
+          </tr>
+        </thead>
+        <tbody id="logTable"></tbody>
+      </table>
+    </div>
     <div class="actions">
       <button onclick="goDashboard()">⬅ Kembali ke Menu</button>
       <button onclick="goTabung()">➡ Pergi ke Log Tabung</button>
@@ -55,24 +66,40 @@
 
 <script>
   let logs = [];
+  let currentUser = null;
 
   window.onload = () => {
-    const user = JSON.parse(localStorage.getItem("MBT_user"));
-    if(user && user.username){ document.getElementById("username").textContent = user.username; }
+    // check session
+    currentUser = localStorage.getItem("MBT_session");
+    if(!currentUser){
+      window.location.href = "login.html";
+      return;
+    }
 
-    const savedLogs = localStorage.getItem("belanjaLogs");
+    // load user data ikut session
+    let userData = localStorage.getItem("MBT_user_" + currentUser);
+    if(userData){
+      let user = JSON.parse(userData);
+      document.getElementById("username").textContent = user.username;
+      if(user.avatar){
+        document.querySelector(".avatar").style.backgroundImage = `url(${user.avatar})`;
+        document.querySelector(".avatar").style.backgroundSize = "cover";
+      }
+    }
+
+    const savedLogs = localStorage.getItem("belanjaLogs_" + currentUser);
     if(savedLogs){ logs = JSON.parse(savedLogs); }
     updateUI();
   };
 
-  function editProfile(){  window.location.href = "profile.html"; }
+  function editProfile(){ window.location.href = "profile.html"; }
   function goDashboard(){ window.location.href = "dashboard.html"; }
   function goTabung(){ window.location.href = "log.html"; }
 
   function resetLog(){
     if(!confirm("Betul nak reset semua log belanja?")) return;
     logs = [];
-    localStorage.setItem("belanjaLogs", JSON.stringify(logs));
+    localStorage.setItem("belanjaLogs_" + currentUser, JSON.stringify(logs));
     updateUI();
     alert("Log belanja telah direset.");
   }

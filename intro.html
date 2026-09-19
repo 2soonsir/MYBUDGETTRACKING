@@ -2,13 +2,14 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Intro - MyBudgetTracking</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@600&display=swap" rel="stylesheet">
 <style>
   body {
     margin: 0;
     font-family: "Poppins", sans-serif;
-    background: linear-gradient(135deg, #0d1b2a, #1b263b); /* navy gradient */
+    background: linear-gradient(135deg, #0d1b2a, #1b263b);
     color: #e0e1dd;
     display: flex;
     justify-content: center;
@@ -17,25 +18,26 @@
     text-align: center;
   }
   .screen {
-    max-width: 600px;
+    max-width: 95%;
+    padding: 10px;
   }
   .fade-text {
     font-family: "Playfair Display", serif;
-    font-size: 30px;
+    font-size: 26px;
     font-weight: 600;
     opacity: 0;
-    animation: fadeInOut 4s forwards;
-    margin-bottom: 20px;
+    animation: fadeInOut 2s forwards;
+    margin-bottom: 15px;
     color: #a9bcd0;
   }
   .title {
     font-family: "Poppins", sans-serif;
-    font-size: 46px;
+    font-size: 36px;
     font-weight: 600;
     opacity: 0;
-    animation: fadeIn 4s forwards;
-    animation-delay: 4s;
-    margin-top: 20px;
+    animation: fadeIn 2s forwards;
+    animation-delay: 2s;
+    margin-top: 15px;
     color: #e0e1dd;
   }
 
@@ -49,6 +51,12 @@
     from { opacity: 0; }
     to { opacity: 1; }
   }
+
+  /* Responsive tweak untuk phone */
+  @media (max-width: 480px) {
+    .fade-text { font-size: 18px; }
+    .title { font-size: 24px; }
+  }
 </style>
 </head>
 <body>
@@ -58,10 +66,9 @@
   </div>
 
 <script>
-  // selepas animation habis, auto pergi login
   setTimeout(function(){
     window.location.href = "login.html";
-  }, 8000); // 8s lepas intro
+  }, 4000); // 4s je
 </script>
 </body>
 </html>

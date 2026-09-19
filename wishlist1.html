@@ -2,31 +2,37 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MyBudgetTracking - Wishlist Utama</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <style>
   body { margin:0; font-family:"Poppins",sans-serif; background:linear-gradient(135deg,#a8dadc,#457b9d); color:#333; min-height:100vh; }
-  .header {
-    background:#1b263b; color:#fff; padding:15px 20px;
-    display:flex; justify-content:space-between; align-items:center;
-  }
+  .header { background:#1b263b; color:#fff; padding:12px 20px; display:flex; justify-content:space-between; align-items:center; }
   .header h1 { margin:0; font-size:20px; font-weight:600; }
-  .profile-header { display:flex; align-items:center; gap:12px; }
-  .avatar { width:40px; height:40px; border-radius:50%; background:#ccc; cursor:pointer; object-fit:cover; }
+  .profile-header { display:flex; align-items:center; gap:10px; }
+  .avatar { width:36px; height:36px; border-radius:50%; background:#ccc; cursor:pointer; object-fit:cover; }
   .welcome { font-size:14px; font-weight:500; }
-  .container { max-width:760px; margin:28px auto; background:#f0f0f0; padding:26px; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15); text-align:center; }
-  .summary { font-size:16px; font-weight:600; color:#1b263b; margin-bottom:18px; }
+  .container { max-width:95%; margin:20px auto; background:#f0f0f0; padding:15px; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.15); text-align:center; }
+  .summary { font-size:16px; font-weight:600; color:#1b263b; margin-bottom:15px; }
   .actions-row { display:flex; gap:10px; justify-content:center; margin-top:14px; flex-wrap:wrap; }
-  button { padding:8px 14px; margin:4px; background:#1b263b; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; transition:0.18s; font-size:13px; }
+  button { padding:8px 14px; background:#1b263b; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; transition:0.18s; font-size:13px; }
   button:hover { background:#415a77; }
   .btn-secondary { background:#fff; color:#1b263b; border:1px solid #1b263b; }
   ul { list-style:none; padding:0; margin-top:15px; text-align:left; }
-  li { background:#e9e9e9; margin:10px 0; padding:12px; border-radius:6px; }
+  li { background:#fff; margin:10px 0; padding:12px; border-radius:6px; box-shadow:0 4px 12px rgba(0,0,0,0.1); word-wrap:break-word; }
   .progress { background:#ddd; border-radius:6px; overflow:hidden; height:10px; margin-top:6px; }
   .progress-bar { background:#2a9d8f; height:100%; width:0%; transition:width 0.4s; }
   .meta { font-size:13px; color:#444; margin-top:6px; }
   .update-box { margin-top:6px; }
-  .update-box input { padding:6px; width:100px; border-radius:6px; border:1px solid #ccc; font-size:13px; }
+  .update-box input, .update-box button { width:100%; margin-top:6px; box-sizing:border-box; }
+
+  @media (max-width:480px){
+    .header h1 { font-size:18px; }
+    .welcome { font-size:12px; }
+    .summary { font-size:14px; }
+    .meta { font-size:12px; }
+    button { width:100%; margin:6px 0; }
+  }
 </style>
 </head>
 <body>
@@ -57,19 +63,25 @@
 
 <script>
   let wishlist = [];
+  let currentUser = null;
 
   window.onload = () => {
-    const user = JSON.parse(localStorage.getItem("MBT_user"));
-    if(user){
-      if(user.username){
-        document.getElementById("username").textContent = user.username;
-      }
-      if(user.avatar){
-        document.getElementById("avatarSmall").src = user.avatar;
-      }
+    // check session
+    currentUser = localStorage.getItem("MBT_session");
+    if(!currentUser){
+      window.location.href = "login.html";
+      return;
     }
 
-    const savedWishlist = localStorage.getItem("wishlist");
+    // load user data ikut session
+    let userData = localStorage.getItem("MBT_user_" + currentUser);
+    if(userData){
+      let user = JSON.parse(userData);
+      document.getElementById("username").textContent = user.username;
+      if(user.avatar){ document.getElementById("avatarSmall").src = user.avatar; }
+    }
+
+    const savedWishlist = localStorage.getItem("wishlist_" + currentUser);
     if(savedWishlist){ wishlist = JSON.parse(savedWishlist); }
     updateUI();
   };
@@ -81,14 +93,14 @@
   function resetWishlist(){
     if(!confirm("Betul nak reset semua wishlist?")) return;
     wishlist = [];
-    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+    localStorage.setItem("wishlist_" + currentUser, JSON.stringify(wishlist));
     updateUI();
     alert("Wishlist telah direset.");
   }
 
   function toggleBought(index){
     wishlist[index].bought = !wishlist[index].bought;
-    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+    localStorage.setItem("wishlist_" + currentUser, JSON.stringify(wishlist));
     updateUI();
   }
 
@@ -98,7 +110,7 @@
     if(tambah && tambah > 0){
       wishlist[index].saved += tambah;
       wishlist[index].progress = Math.min((wishlist[index].saved / wishlist[index].price) * 100, 100);
-      localStorage.setItem("wishlist", JSON.stringify(wishlist));
+      localStorage.setItem("wishlist_" + currentUser, JSON.stringify(wishlist));
       updateUI();
       alert("Progress simpanan dikemaskini.");
       input.value = "";
@@ -116,7 +128,7 @@
       const originalIndex = wishlist.indexOf(item);
       const li = document.createElement("li");
       li.innerHTML = `
-        <div style="display:flex; gap:10px; align-items:flex-start;">
+        <div style="display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap;">
           <input type="checkbox" onchange="toggleBought(${originalIndex})" ${item.bought?"checked":""}>
           <div style="flex:1;">
             <div style="font-weight:700; color:#1b263b;">${item.name} - RM ${Number(item.price).toFixed(2)}</div>

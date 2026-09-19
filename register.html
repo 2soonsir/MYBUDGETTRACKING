@@ -65,9 +65,12 @@
 <body>
   <div class="register-box">
     <div class="title">Create Account</div>
-    <input id="username" placeholder="Username" required><br>
-    <input id="password" type="password" placeholder="Password" required><br>
-    <button onclick="register()">Register</button>
+    <form onsubmit="register(); return false;">
+      <input id="username" placeholder="Username" required><br>
+      <input id="password" type="password" placeholder="Password" required><br>
+      <button type="submit">Register</button>
+      <button type="button" onclick="goLogin()">⬅ Back to Login</button>
+    </form>
   </div>
 
   <script>
@@ -80,9 +83,21 @@
         return;
       }
 
-      let user = { username, password };
-      localStorage.setItem("MBT_user", JSON.stringify(user));
+      // Check kalau user dah wujud
+      if(localStorage.getItem("MBT_user_" + username)){
+        alert("Username sudah wujud. Sila pilih nama lain.");
+        return;
+      }
+
+      let user = { username, password, avatar:"" };
+      // Simpan ikut username unik
+      localStorage.setItem("MBT_user_" + username, JSON.stringify(user));
+
       alert("Account created! Please login.");
+      window.location.href = "login.html";
+    }
+
+    function goLogin(){
       window.location.href = "login.html";
     }
   </script>

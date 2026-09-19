@@ -2,6 +2,7 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MyBudgetTracking - Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -15,7 +16,7 @@
   .header {
     background: #1b263b;
     color: #fff;
-    padding: 15px 25px;
+    padding: 12px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -28,11 +29,11 @@
   .profile-header {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
   }
   .avatar {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: #ccc;
     cursor: pointer;
@@ -43,16 +44,16 @@
     font-weight: 500;
   }
   .dashboard {
-    max-width: 600px;
-    margin: 40px auto;
+    max-width: 95%;
+    margin: 20px auto;
     background: #f0f0f0;
-    padding: 30px;
+    padding: 20px;
     border-radius: 12px;
     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     text-align: center;
   }
   .summary {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     font-size: 16px;
     font-weight: 600;
     color: #1b263b;
@@ -76,6 +77,14 @@
   }
   .nav-buttons button:hover {
     background: #415a77;
+  }
+
+  /* Responsive tweak untuk phone */
+  @media (max-width: 480px) {
+    .nav-buttons { flex-direction: column; }
+    .nav-buttons button { flex: 1 1 100%; font-size: 14px; padding: 10px; }
+    .summary { font-size: 14px; }
+    .header h1 { font-size: 18px; }
   }
 </style>
 </head>
@@ -105,37 +114,40 @@
 <script>
   let target = 0;
   let total = 0;
+  let currentUser = null;
 
   window.onload = () => {
-    let user = JSON.parse(localStorage.getItem("MBT_user"));
-    if(user){
-      if(user.username){
-        document.getElementById("username").textContent = user.username;
-      }
-      if(user.avatar){
-        document.getElementById("avatarSmall").src = user.avatar;
-      }
+    // check session
+    currentUser = localStorage.getItem("MBT_session");
+    if(!currentUser){
+      window.location.href = "login.html";
+      return;
     }
 
-    const savedTotal = localStorage.getItem("savingTotal");
+    // load user data ikut session
+    let userData = localStorage.getItem("MBT_user_" + currentUser);
+    if(userData){
+      let user = JSON.parse(userData);
+      document.getElementById("username").textContent = user.username;
+      if(user.avatar){ document.getElementById("avatarSmall").src = user.avatar; }
+    }
+
+    // load simpanan & target ikut user
+    const savedTotal = localStorage.getItem("savingTotal_" + currentUser);
     if(savedTotal){
       total = parseFloat(savedTotal);
       document.getElementById("summaryTotal").textContent = total.toFixed(2);
     }
 
-    const savedTarget = localStorage.getItem("target");
+    const savedTarget = localStorage.getItem("target_" + currentUser);
     if(savedTarget){
       target = parseFloat(savedTarget);
       document.getElementById("targetInfo").textContent = target.toFixed(2);
     }
   };
 
-  function goPage(page){
-    window.location.href = page;
-  }
-  function editProfile(){
-    window.location.href = "profile.html";
-  }
+  function goPage(page){ window.location.href = page; }
+  function editProfile(){ window.location.href = "profile.html"; }
 </script>
 </body>
 </html>

@@ -83,27 +83,27 @@
     };
 
     function login(){
-      try {
-        let userData = localStorage.getItem("MBT_user");
-        if(!userData){
-          alert("No user found. Please register first.");
-          return;
-        }
+      let inputUser = document.getElementById("username").value.trim();
+      let inputPass = document.getElementById("password").value.trim();
 
-        let user = JSON.parse(userData);
-        let inputUser = document.getElementById("username").value.trim();
-        let inputPass = document.getElementById("password").value.trim();
+      // Ambil data user ikut username
+      let userData = localStorage.getItem("MBT_user_" + inputUser);
+      if(!userData){
+        alert("User tidak wujud. Sila register dulu.");
+        return;
+      }
 
-        if(user.username === inputUser && user.password === inputPass){
-          localStorage.setItem("MBT_session", user.username); // simpan session
-          alert("Welcome back, " + user.username + "!");
-          window.location.href = "dashboard.html";
-        } else {
-          alert("Invalid login. Please try again.");
-        }
-      } catch(e){
-        console.error("Login error:", e);
-        alert("Error reading user data. Please register again.");
+      let user = JSON.parse(userData);
+
+      if(user.password === inputPass){
+        // clear session lama
+        localStorage.removeItem("MBT_session");
+        // simpan session baru
+        localStorage.setItem("MBT_session", user.username);
+        alert("Welcome back, " + user.username + "!");
+        window.location.href = "dashboard.html";
+      } else {
+        alert("Password salah. Sila cuba lagi.");
       }
     }
 
